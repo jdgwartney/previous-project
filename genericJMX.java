@@ -23,7 +23,7 @@ public class genericJMX {
 		genericJMX cfg = new genericJMX();
 		ArrayList<Metric> mbeans = new ArrayList<Metric>();
 		
-		echo("looking for configure.json in: " + System.getProperty("user.dir"));
+		//echo("looking for configure.json in: " + System.getProperty("user.dir"));
 		
 	    JSONParser parser = new JSONParser();
 	      
