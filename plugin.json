@@ -2,6 +2,6 @@
     "description" : "Gets generic JMX metrics",
 	"command" : "java -cp json-simple.jar;. genericJMX",
 	"metrics" : ["CAS_FW_PT","CAS_FW_CT"],
-	"postExtract" : "java  -version" 
+	"postExtract" : "java -version" 
 }
 
