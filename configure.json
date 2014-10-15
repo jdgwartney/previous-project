@@ -1,0 +1,16 @@
+{"host":"localhost",
+ "port":"7199",
+ "metrics":
+  [
+    {  
+        "mbean":"org.apache.cassandra.internal:type=FlushWriter",
+        "attribute":"PendingTasks",
+        "boundary_metric_name":"CS_FW_PT",
+    },
+    {  
+        "mbean":"org.apache.cassandra.internal:type=FlushWriter",
+        "attribute":"CompletedTasks",
+        "boundary_metric_name":"CS_FW_CT",
+    }
+  ]
+}
