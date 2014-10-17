@@ -67,6 +67,8 @@ public class genericJMX {
 			System.exit(4);
 		}
 
+		inputFile.close(); 
+		
 	    String port = (String) configuration.get("port");
 	    if (port == null) {System.out.println("No port sepcified"); System.exit(8);}
 	    
