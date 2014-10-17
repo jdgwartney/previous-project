@@ -2,6 +2,14 @@
     "description" : "Gets generic JMX metrics",
 	"command" : "java -cp genericJMX.jar genericJMX $(configfile)",
 	"metrics" : ["CAS_FW_PT","CAS_FW_CT"],
-	"postExtract" : "java -version" 
+	"postExtract" : "java -version",
+"paramSchema" : [
+		{
+			"title" : "Configuration File Name",
+			"name" : "configfile",
+			"description" : "The input file name that specifies the JMX host, port, and list of parameters. An example of this file is in the plugin directory - configure.json",
+			"type" : "string",
+			"required" : true
+		}]
 }
 
