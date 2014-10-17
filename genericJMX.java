@@ -31,10 +31,11 @@ public class genericJMX {
 	public static void main(String[] args) throws Exception {
 		
 		String configFile = null;
+			
 		if (args.length != 0) {
 			configFile = args[0];
 			configFile = configFile.replace("\\",""); // get rid of escape characters
- 		}
+		}
 		else {
 			error("No configuration file specified. Filename must be specified as the only parameter.");
 			System.exit(1);
@@ -74,6 +75,9 @@ public class genericJMX {
 	    
 	    String host = (String) configuration.get("host");
 	    if (host == null) {host = "localhost";}
+	    
+	    String interval = (String) configuration.get("interval");
+	    if (interval == null) {interval = "5";}
 
 	    String source = (String) configuration.get("source");
 	    if (source == null) {
@@ -125,7 +129,7 @@ public class genericJMX {
 		  		      getMbean(mbsc, mbean.mbean_name, mbean.attribute, mbean.boundary_metric_name, source);
 	  		  }
 		  		  
-	        	Thread.sleep(1000);
+	        	Thread.sleep(1000 * Integer.valueOf(interval));
 	      }
 
 		        
