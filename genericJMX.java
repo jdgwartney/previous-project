@@ -1,13 +1,21 @@
 
+import java.io.BufferedOutputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileReader;
-
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
+
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
+
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Set;
+
 import javax.management.MBeanServerConnection;
 import javax.management.ObjectInstance;
 import javax.management.ObjectName;
@@ -18,21 +26,52 @@ import javax.management.remote.JMXServiceURL;
 
 public class genericJMX {
 
+	static int logcount;
+	
 	public static void main(String[] args) throws Exception {
+		
+		String configFile = null;
+		if (args.length != 0) {
+			log("Arguments specified:");
+			for (String arg : args) {
+				log(arg);
+			}
+			configFile = args[0];
+		}
+		else {
+			error("No configuration file specified. Filename must be specified as the only parameter.");
+			System.exit(1);
+		}
 		
 		genericJMX cfg = new genericJMX();
 		ArrayList<Metric> mbeans = new ArrayList<Metric>();
 		
-		//echo("looking for configure.json in: " + System.getProperty("user.dir"));
-		
+	
+		log("Looking for configuration file: " + configFile + " - relative to current directory: "
+				+   System.getProperty("user.dir"));
+		 
 	    JSONParser parser = new JSONParser();
 	      
 		JSONObject configuration = null;
+		FileReader inputFile = null;	
+		try {
+			inputFile = new FileReader(configFile);
+		}
+		catch (FileNotFoundException e) {
+			error("Input file not found: " + configFile);
+			System.exit(2);
+		}
 		
-		configuration = (JSONObject) parser.parse(new FileReader("configure.json"));
+		try {
+		configuration = (JSONObject) parser.parse(inputFile);
+		}
+		catch (ParseException e) {
+			error("Input file has JSON parse error: " + e.getPosition() + " " + e.toString());
+			System.exit(4);
+		}
 
 	    String port = (String) configuration.get("port");
-	    if (port == null) {System.out.println("No port sepcified"); System.exit(1);}
+	    if (port == null) {System.out.println("No port sepcified"); System.exit(8);}
 	    
 	    String host = (String) configuration.get("host");
 	    if (host == null) {host = "localhost";}
@@ -48,8 +87,8 @@ public class genericJMX {
 	    	}
 	    	catch (UnknownHostException ex)
 	    	{
-	    	    echo("source not specified in configuration file and hostname can not be resolved");
-	    	    source = "unknown";
+	    	    error("source not specified in configuration file and hostname can not be resolved");
+	    	    System.exit(16);
 	    	}
 	    }  	
 
@@ -103,6 +142,7 @@ private static void getMbean(MBeanServerConnection mbsc, String searchName, Stri
   
 	   	 for (ObjectInstance name: mbeans) {
 	    	echo(displayName + " " + mbsc.getAttribute( name.getObjectName(), attributeName).toString() + " " + source);
+	    	log(displayName + " " + mbsc.getAttribute( name.getObjectName(), attributeName).toString() + " " + source);
 	     }
 	            	
 	  	}
@@ -110,8 +150,28 @@ private static void getMbean(MBeanServerConnection mbsc, String searchName, Stri
 		    	
  }
 
+  private static void error(String msg) throws IOException {
+	echo(msg);
+	log(msg);
+  }
+  
   private static void echo(String msg) {
        System.out.println(msg);
+  }
+  
+  private static void log(String line) throws IOException {
+
+	  logcount++;
+	  long millis = System.currentTimeMillis() ;
+	  
+	  BufferedOutputStream bout = null;
+	  boolean appendflag = true;
+	  if (logcount%1000 == 0) {appendflag = false;}
+      bout = new BufferedOutputStream( new FileOutputStream("genericJMX.log",appendflag) );
+	  line = new Date(millis) + " " + logcount + " " + line + System.getProperty("line.separator");
+	  bout.write(line.getBytes());
+	 bout.close();
+   
   }
 
 	
