@@ -32,12 +32,9 @@ public class genericJMX {
 		
 		String configFile = null;
 		if (args.length != 0) {
-			log("Arguments specified:");
-			for (String arg : args) {
-				log(arg);
-			}
 			configFile = args[0];
-		}
+			configFile = configFile.replace("\\",""); // get rid of escape characters
+ 		}
 		else {
 			error("No configuration file specified. Filename must be specified as the only parameter.");
 			System.exit(1);
@@ -47,8 +44,8 @@ public class genericJMX {
 		ArrayList<Metric> mbeans = new ArrayList<Metric>();
 		
 	
-		log("Looking for configuration file: " + configFile + " - relative to current directory: "
-				+   System.getProperty("user.dir"));
+		//log("Looking for configuration file: " + configFile + " - relative to current directory: "
+		//		+   System.getProperty("user.dir"));
 		 
 	    JSONParser parser = new JSONParser();
 	      
@@ -142,11 +139,10 @@ private static void getMbean(MBeanServerConnection mbsc, String searchName, Stri
   
 	   	 for (ObjectInstance name: mbeans) {
 	    	echo(displayName + " " + mbsc.getAttribute( name.getObjectName(), attributeName).toString() + " " + source);
-	    	log(displayName + " " + mbsc.getAttribute( name.getObjectName(), attributeName).toString() + " " + source);
 	     }
 	            	
 	  	}
-	  	else { echo("Unable to locate MBean: "+ searchName);}
+	  	else { error("Unable to locate MBean: "+ searchName);}
 		    	
  }
 
