@@ -1,5 +1,6 @@
 {"host":"localhost",
  "port":"7199",
+ "interval":"5",
  "metrics":
   [
     {  

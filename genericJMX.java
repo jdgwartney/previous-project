@@ -30,6 +30,8 @@ public class genericJMX {
 	
 	public static void main(String[] args) throws Exception {
 		
+		genericJMX cfg = new genericJMX(); 
+		
 		String configFile = null;
 			
 		if (args.length != 0) {
@@ -40,17 +42,11 @@ public class genericJMX {
 			error("No configuration file specified. Filename must be specified as the only parameter.");
 			System.exit(1);
 		}
-		
-		genericJMX cfg = new genericJMX();
-		ArrayList<Metric> mbeans = new ArrayList<Metric>();
-		
 	
-		//log("Looking for configuration file: " + configFile + " - relative to current directory: "
-		//		+   System.getProperty("user.dir"));
+		log("Looking for configuration file: " + configFile + " - relative to current directory: "
+				+   System.getProperty("user.dir"));
 		 
-	    JSONParser parser = new JSONParser();
-	      
-		JSONObject configuration = null;
+
 		FileReader inputFile = null;	
 		try {
 			inputFile = new FileReader(configFile);
@@ -59,6 +55,9 @@ public class genericJMX {
 			error("Input file not found: " + configFile);
 			System.exit(2);
 		}
+		
+	    JSONParser parser = new JSONParser();
+		JSONObject configuration = null;
 		
 		try {
 		configuration = (JSONObject) parser.parse(inputFile);
@@ -95,7 +94,8 @@ public class genericJMX {
 	    	}
 	    }  	
 
-	    
+		ArrayList<Metric> mbeans = new ArrayList<Metric>();
+    
 		JSONArray metrics = (JSONArray) configuration.get("metrics");
 		  for (Object o : metrics)
 		  {
@@ -106,7 +106,7 @@ public class genericJMX {
 		    String boundary_metric_name = (String) config.get("boundary_metric_name");
 		    
 		    if (mbean_name == null || attribute == null || boundary_metric_name == null)
-		    {echo("Error in metrics definition"); System.exit(1);}
+		    {error("Error in metrics definition"); System.exit(1);}
 		    
 		    mbeans.add( cfg.new Metric(mbean_name, attribute, boundary_metric_name));  // store my mbeans away
 		    
@@ -114,6 +114,7 @@ public class genericJMX {
 		  
 		  // Now we have the configuration data, let's start using it to get the MBeans
 		  
+		 log("Attempting connection to: " + host + " port: "+ port);
         
 	     JMXServiceURL serviceURL = new JMXServiceURL(
 		                "service:jmx:rmi:///jndi/rmi://" + host + ":" + port + "/jmxrmi");
@@ -122,20 +123,22 @@ public class genericJMX {
 
 	     MBeanServerConnection mbsc = jmxc.getMBeanServerConnection();
   
-        
 	     while (true) {   // Forever
-   	 		  for(Object object : mbeans) {
-		  		      Metric mbean = (Metric) object;
-		  		      getMbean(mbsc, mbean.mbean_name, mbean.attribute, mbean.boundary_metric_name, source);
+             long timethen = System.currentTimeMillis();
+             for(Object object : mbeans) {
+		  		 Metric mbean = (Metric) object;
+		  		 displayMbean(mbsc, mbean.mbean_name, mbean.attribute, mbean.boundary_metric_name, source);
 	  		  }
-		  		  
-	        	Thread.sleep(1000 * Integer.valueOf(interval));
+            long timenow = System.currentTimeMillis();	
+            long elapsed = timenow - timethen;
+            log("Time to get the mbeans was: " + elapsed);
+ 	        Thread.sleep(1000 * Integer.valueOf(interval) - elapsed -1);    
 	      }
 
 		        
 	   }
 		    
-private static void getMbean(MBeanServerConnection mbsc, String searchName, String attributeName, 
+private static void displayMbean(MBeanServerConnection mbsc, String searchName, String attributeName, 
    		String displayName, String source) throws Exception
     {
     	ObjectName myMbeanName = new ObjectName(searchName);
@@ -145,6 +148,7 @@ private static void getMbean(MBeanServerConnection mbsc, String searchName, Stri
   
 	   	 for (ObjectInstance name: mbeans) {
 	    	echo(displayName + " " + mbsc.getAttribute( name.getObjectName(), attributeName).toString() + " " + source);
+	    	log(displayName + " " + mbsc.getAttribute( name.getObjectName(), attributeName).toString() + " " + source);
 	     }
 	            	
 	  	}
@@ -169,8 +173,9 @@ private static void getMbean(MBeanServerConnection mbsc, String searchName, Stri
 	  BufferedOutputStream bout = null;
 	  boolean appendflag = true;
 	  if (logcount%1000 == 0) {appendflag = false;}
-      bout = new BufferedOutputStream( new FileOutputStream("genericJMX.log",appendflag) );
-	  line = new Date(millis) + " " + logcount + " " + line + System.getProperty("line.separator");
+      bout = new BufferedOutputStream( new FileOutputStream("../genericJMX.log",appendflag) );
+	  line = new Date(millis) + " " + millis + " " + logcount + " " 
+			  + line + System.getProperty("line.separator");
 	  bout.write(line.getBytes());
 	 bout.close();
    
