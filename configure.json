@@ -12,6 +12,7 @@
         "mbean":"org.apache.cassandra.internal:type=FlushWriter",
         "attribute":"CompletedTasks",
         "boundary_metric_name":"CAS_FW_CT",
+        "metric_type" : "delta"
     }
   ]
 }
