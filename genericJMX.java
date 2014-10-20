@@ -124,7 +124,7 @@ public class genericJMX {
 		    String mbean_name = (String) config.get("mbean");
 		    String attribute = (String) config.get("attribute");
 		    String boundary_metric_name = (String) config.get("boundary_metric_name");
-		    String metric_type = (String) config.get("metric_type");
+		    String metric_type = (String) config.get("metric_type");  
 		    if (metric_type == null) {
 		    	metric_type = "standard";
 		    }
@@ -144,7 +144,7 @@ public class genericJMX {
              for(Object object : mbeans) {
 		  		 Metric mbean = (Metric) object;
   		         if (mbean.metric_type.equals("delta")) {
-  		        	if (!mbean.setDeltaValue()) {break;}   // false is first time hence no delta value available
+  		        	if (!mbean.setDeltaValue()) {continue;}   // for delta metrics there is no value on the first request
   		         }
   		         else {mbean.setCurrentValue();}
 		  		 echo(mbean.boundary_metric_name + " " + mbean.displayValue + " " + source);  // This is for Boundary Meter
@@ -233,6 +233,7 @@ public class genericJMX {
 		   	 for (ObjectInstance name : mbeans) {
 		    	currentValue = (long) this.mbsc.getAttribute( name.getObjectName(), attribute);
 		    	log("Metric current value for " + mbean_name + " " + attribute + " " + currentValue);
+		    	if (this.metric_type.equals("percent")) {currentValue = currentValue * 100;}		    		
 		     }
 		            	
 		  	}
