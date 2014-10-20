@@ -6,6 +6,8 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -80,6 +82,9 @@ public class genericJMX {
 	    String host = (String) configuration.get("host");
 	    if (host == null) {host = "localhost";}
 	    
+	    String user = (String) configuration.get("user");
+ 	    String password = (String) configuration.get("password");
+		    
 	    
 		// Now we have enough data to attempt the JMX connection
 		  
@@ -87,7 +92,20 @@ public class genericJMX {
 	      
 		JMXServiceURL serviceURL = new JMXServiceURL(
 			                "service:jmx:rmi:///jndi/rmi://" + host + ":" + port + "/jmxrmi");
-		JMXConnector jmxc = JMXConnectorFactory.connect(serviceURL); 
+
+		// We may or may not have to connect with user and password
+		// If the user and password keys were provided then we assume that we have to authenticate
+		//
+		JMXConnector jmxc = null;
+		if (user == null) {
+			jmxc = JMXConnectorFactory.connect(serviceURL); 
+		}
+		else {
+			Map<String, String[]> env = new HashMap<>();
+			String[] credentials = {user, password};
+			env.put(JMXConnector.CREDENTIALS, credentials);
+			jmxc = JMXConnectorFactory.connect(serviceURL, env);
+		}
 
         MBeanServerConnection mbsc = jmxc.getMBeanServerConnection();
         

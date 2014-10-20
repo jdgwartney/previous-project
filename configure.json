@@ -1,12 +1,15 @@
 {"host":"localhost",
  "port":"7199",
  "interval":"5",
+ "user":"mark",
+ "password":"secret",
  "metrics":
   [
     {  
         "mbean":"org.apache.cassandra.internal:type=FlushWriter",
         "attribute":"PendingTasks",
         "boundary_metric_name":"CAS_FW_PT",
+        "metric_type":"standard"
     },
     {  
         "mbean":"org.apache.cassandra.internal:type=FlushWriter",
