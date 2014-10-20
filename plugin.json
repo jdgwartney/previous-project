@@ -2,6 +2,7 @@
     "description" : "Gets generic JMX metrics",
 	"command" : "java -cp genericJMX.jar genericJMX $(configfile)",
 	"postExtract" : "java -version",
+"metrics" : ["CAS_FW_PT","CAS_FW_CT"],
 "paramSchema" : [
 		{
 			"title" : "Configuration File Name",
